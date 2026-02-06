@@ -20,7 +20,7 @@ import {
 export const description = "Radar chart showing top criticized features"
 
 const featureCriticism = [
-  { feature: "Support", score: 95 },       // most problematic
+  { feature: "Support", score: 95 },      
   { feature: "Performance", score: 80 },
   { feature: "UI", score: 70 },
   { feature: "Pricing", score: 60 },

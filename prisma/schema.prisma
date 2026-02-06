@@ -1,17 +1,12 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
+
+
 
 enum UserRole {
   ADMIN
@@ -23,6 +18,25 @@ enum Sentiment {
   NEUTRAL
   NEGATIVE
 }
+
+enum RatingType {
+  OVERALL
+  CUSTOM
+}
+
+enum InsightType {
+  FEATURE
+  CRITICISM
+}
+
+enum KnowledgeType {
+  SUMMARY
+  FEATURE
+  ISSUE
+  TREND
+}
+
+
 
 model User {
   id            String    @id @default(cuid())
@@ -69,6 +83,8 @@ model VerificationToken {
   @@unique([email, token])
 }
 
+
+
 model Company {
   id          String  @id @default(cuid())
   userId      String  @unique
@@ -79,12 +95,14 @@ model Company {
   description String
   website     String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   feedbacks    Feedback[]
   feedbackForm FeedbackForm?
+  metrics      OrgMetrics?
+  knowledge    OrgKnowledge[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model FeedbackForm {
@@ -94,26 +112,102 @@ model FeedbackForm {
   logoUrl   String?
   name      String?
   companyId String  @unique
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+
+
 model Feedback {
-  id        String    @id @default(cuid())
-  rating    Int
-  name      String
-  state     String
-  country   String
-  date      DateTime  @default(now())
-  sentiment Sentiment
+  id        String   @id @default(cuid())
+  name      String?
+  state     String?
+  country   String?
   text      String?
-  fields    Json
+  fields    Json    
 
   companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  ratings   Rating[]
+  analysis  FeedbackAnalysis?
+  insights  FeedbackInsight[]
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+
+model Rating {
+  id         String     @id @default(cuid())
+  feedbackId String
+  type       RatingType
+  label      String?   
+  value      Int       
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+
+
+model FeedbackAnalysis {
+  id             String    @id @default(cuid())
+  feedbackId     String    @unique
+  sentiment      Sentiment
+  sentimentScore Float    
+  auricImpact    Float    
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+
+
+model FeedbackInsight {
+  id         String      @id @default(cuid())
+  feedbackId String
+  type       InsightType
+  label      String     
+  confidence Float
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+
+
+model OrgMetrics {
+  companyId      String   @id
+  totalFeedbacks Int
+  avgRating      Float
+  auricScore     Float
+  positiveCount  Int
+  neutralCount   Int
+  negativeCount  Int
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  updatedAt DateTime @updatedAt
+}
+
+
+
+model OrgKnowledge {
+  id        String        @id @default(cuid())
+  companyId String
+  type      KnowledgeType
+  content   String
+  embedding Float[]      
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
   updatedAt DateTime @updatedAt
 }
