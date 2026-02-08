@@ -1,7 +1,8 @@
 export const publicRoutes = [
     "/",
     "/auth/verify",
-    "/feedback/*"
+    "/feedback/*",
+    "/f/*",
 ];
 
 export const authRoutes = [

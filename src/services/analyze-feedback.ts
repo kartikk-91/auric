@@ -6,7 +6,7 @@ import { extractInsights } from "./insight-extractor";
 import { updateOrgMetrics } from "./metrics-updater";
 
 export async function analyzeFeedback(feedbackId: string) {
- 
+
   const feedback = await db.feedback.findUnique({
     where: { id: feedbackId },
     include: {
@@ -19,28 +19,30 @@ export async function analyzeFeedback(feedbackId: string) {
     throw new Error("Feedback not found");
   }
 
- 
+
   if (feedback.analysis) {
     console.log("⚠️ Feedback already analyzed, skipping:", feedbackId);
     return;
   }
 
- 
+
   const overallRating = calculateOverallRating(feedback.ratings);
 
- 
+
   const sentimentResult = await analyzeSentiment(
     feedback.text!,
-    feedback.fields
+    feedback.fields,
+    overallRating
   );
 
- 
+
+
   const auricImpact = calculateAuricImpact(
     overallRating,
     sentimentResult.sentimentScore
   );
 
- 
+
   await db.feedbackAnalysis.create({
     data: {
       feedbackId,
@@ -50,7 +52,7 @@ export async function analyzeFeedback(feedbackId: string) {
     },
   });
 
- 
+
   const insights = await extractInsights(feedback.text!);
 
   if (insights.length > 0) {
@@ -64,7 +66,7 @@ export async function analyzeFeedback(feedbackId: string) {
     });
   }
 
- 
+
   await updateOrgMetrics({
     companyId: feedback.companyId,
     rating: overallRating,

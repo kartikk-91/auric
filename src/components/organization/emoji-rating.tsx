@@ -7,9 +7,18 @@ export function EmojiRating({ onSelect }: { onSelect?: (i: number) => void }) {
   const [value, setValue] = useState<number | null>(null);
 
   return (
-    <div className="flex flex-wrap justify-start gap-3 sm:gap-4">
+    <div
+      className="
+        flex items-center gap-2 sm:gap-3
+        overflow-x-auto
+        h-18
+        no-scrollbar
+        -mx-1 px-1
+      "
+    >
       {EMOJIS.map((e, i) => {
         const active = value === i;
+
         return (
           <motion.button
             key={i}
@@ -18,15 +27,21 @@ export function EmojiRating({ onSelect }: { onSelect?: (i: number) => void }) {
               setValue(i);
               onSelect?.(i);
             }}
-            whileHover={{ scale: 1.15 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.12 }}
+            whileTap={{ scale: 0.94 }}
             className={`
-              text-2xl sm:text-3xl md:text-4xl
-              leading-none rounded-xl transition
-              px-3 py-2 sm:px-4 sm:py-2.5
-              ${active ? "bg-gradient-to-r from-indigo-100 to-emerald-100 ring-2 ring-indigo-300" : "hover:bg-gray-100"}
+              flex-shrink-0
+              rounded-xl transition
               flex items-center justify-center
-              min-w-[40px] sm:min-w-[50px]
+              
+              text-xl sm:text-2xl md:text-3xl
+              w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14
+
+              ${
+                active
+                  ? "bg-indigo-100 ring-2 ring-indigo-300"
+                  : "hover:bg-gray-100"
+              }
             `}
             aria-label={`Select ${e}`}
           >

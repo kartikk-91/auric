@@ -59,12 +59,7 @@ const ProfileDropdown = () => {
                         </div>
                     </div>
                     <div className='px-6'>
-                        <form action={async () => {
-                            "use server";
-                            await signOut({
-                                redirectTo: "/auth/login"
-                              });
-                        }}>
+                        <form>
                         <Button
                             type='submit'
                             variant={"destructive"} size={"lg"} className='w-full hover:bg-[#fe4e009e] bg-[#fe4e00] cursor-pointer'>

@@ -10,33 +10,29 @@ interface ProtectedLayoutProps {
   children: ReactNode;
 }
 
-export default async function ProtectedLayout({ children }: ProtectedLayoutProps) {
+export default async function ProtectedLayout({
+  children,
+}: ProtectedLayoutProps) {
   const session = await auth();
 
-  if (!session) {
-    redirect("/auth/login");
-  }
+  if (!session) redirect("/auth/login");
 
   const orgExists = await checkUserOrg(session.user.id);
+  if (!orgExists) redirect("/organization/details");
 
-  if (!orgExists) {
-    redirect("/organization/details");
-  }
-  else{
-    const formExists=  await checkOrgForm(session.user.id);
-    if(!formExists){
-      redirect("/organization/feedback-builder");
-    }
-  }
+  const formExists = await checkOrgForm(session.user.id);
+  if (!formExists) redirect("/organization/feedback-builder");
 
-  return <>
-    <div className="min-h-screen w-full h-screen overflow-hidden bg-[#E8EDEE] flex ">
+  return (
+    <div className="min-h-screen w-full bg-[#E8EDEE] flex">
+      
       <Sidebar />
-      <div className="w-[calc(100%-112px)]  relative h-full overflow-y-scroll">
+
+      
+      <div className="flex-1 relative w-full  h-screen overflow-y-auto">
         <Header />
-        {children}
-        
+        <main className="pt-4">{children}</main>
       </div>
     </div>
-  </>;
+  );
 }

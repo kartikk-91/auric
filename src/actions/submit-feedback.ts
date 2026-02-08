@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 import { db } from "@/lib/db";
@@ -37,7 +38,7 @@ export async function submitFeedback(input: {
       country,
       state,
       text,
-      fields,
+      fields: fields as any, 
       ratings: {
         createMany: {
           data: ratings,

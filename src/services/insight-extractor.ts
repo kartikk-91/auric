@@ -1,40 +1,75 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import winkNLP from "wink-nlp";
+import model from "wink-eng-lite-web-model";
 import { InsightType } from "@prisma/client";
+import Sentiment from "sentiment";
 
-export async function extractInsights(text?: string): Promise<
-  {
-    type: InsightType;
-    label: string;
-    confidence: number;
-  }[]
-> {
-  if (!text) return [];
+const nlp = winkNLP(model);
+const its = nlp.its;
+const as = nlp.as;
+const sentiment = new Sentiment();
 
-  const lower = text.toLowerCase();
-  const insights = [];
+type Insight = {
+  type: InsightType;
+  label: string;
+  confidence: number;
+};
 
-  if (lower.includes("support")) {
-    insights.push({
-      type: InsightType.FEATURE,
-      label: "Customer Support",
-      confidence: 0.8,
-    });
-  }
+export async function extractInsights(text?: string): Promise<Insight[]> {
+  if (!text || text.trim().length === 0) return [];
 
-  if (lower.includes("ui") || lower.includes("interface")) {
-    insights.push({
-      type: InsightType.CRITICISM,
-      label: "User Interface",
-      confidence: 0.75,
-    });
-  }
+  const doc = nlp.readDoc(text);
+  const insightsMap = new Map<string, Insight>();
 
-  if (lower.includes("pricing") || lower.includes("expensive")) {
-    insights.push({
-      type: InsightType.CRITICISM,
-      label: "Pricing",
-      confidence: 0.7,
-    });
-  }
+ 
+  doc.sentences().each((sentence: any) => {
+    const sentenceText = sentence.out('text');
 
-  return insights;
+   
+    const sent = sentiment.analyze(sentenceText);
+    const polarity = sent.comparative;
+
+   
+    if (Math.abs(polarity) < 0.15) return;
+
+   
+    sentence
+      .tokens()
+      .filter((t:any) => t.out(its.pos) === "NOUN")
+      .out(as.array)
+      .forEach((token: any) => {
+        const label = normalizeLabel(token.out(its.lemma));
+
+        if (!label || label.length < 3) return;
+
+        const type =
+          polarity > 0
+            ? InsightType.FEATURE
+            : InsightType.CRITICISM;
+
+        const confidence = Math.min(
+          1,
+          Math.abs(polarity) + token.out(its.tf) * 0.1
+        );
+
+        
+        if (!insightsMap.has(label)) {
+          insightsMap.set(label, {
+            type,
+            label,
+            confidence: Number(confidence.toFixed(2)),
+          });
+        }
+      });
+  });
+
+  return Array.from(insightsMap.values());
+}
+
+
+function normalizeLabel(label: string): string {
+  return label
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]/g, "")
+    .trim();
 }

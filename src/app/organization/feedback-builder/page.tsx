@@ -35,6 +35,7 @@ import { PreviewForm } from "@/components/organization/form-preview";
 import { EmojiRating } from "@/components/organization/emoji-rating";
 import Image from "next/image";
 import { saveFeedbackForm } from "@/actions/add-org-form";
+import { useRouter } from "next/navigation";
 
 
 type BuiltInFieldKey = "name" | "state" | "country" | "text";
@@ -76,7 +77,7 @@ function SortableQuestion({ q, onLabel, onRemove }: { q: RatingQuestion; onLabel
         <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing select-none text-gray-500">
           <GripVertical className="h-5 w-5" />
         </div>
-        <div>
+        <div className="space-y-1">
           <Label>Question label</Label>
           <Input value={q.label} onChange={(e) => onLabel(e.target.value)} placeholder="e.g. How satisfied are you with support?" />
         </div>
@@ -103,6 +104,7 @@ export default function AuricFeedbackFormBuilder() {
   const [logoPreview, setLogoPreview] = useState("");
   const [uploading, setUploading] = useState(false);
   const [, setLoading] = useState(false);
+  const router=useRouter();
 
   const canAdd = questions.length < 6;
 
@@ -170,7 +172,7 @@ export default function AuricFeedbackFormBuilder() {
         questions,
       });
       if (res.success) {
-        alert("Form saved successfully ✅");
+        router.push('/dashboard')
       } else {
         alert(res.error || "Failed to save form ❌");
       }
@@ -187,12 +189,16 @@ export default function AuricFeedbackFormBuilder() {
   
       <div className="sticky top-0 z-30 backdrop-blur-xl bg-white/80 border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3">
-          <Boxes className="h-6 w-6 text-indigo-600" />
-          <div className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-sky-600 to-emerald-600">
-            Auric Form Builder
+          <div>
+            <Image
+              src={'/auric.png'}
+              alt="Auric"
+              height={50}
+              width={50}
+            />
           </div>
           <div className="ml-auto flex items-center gap-2">
-            <Button onClick={handleSave} className="rounded-full gap-2">
+            <Button onClick={handleSave} className="rounded-2xl gap-2">
               <Save className="h-4 w-4" /> Save
             </Button>
           </div>
@@ -225,7 +231,7 @@ export default function AuricFeedbackFormBuilder() {
                  
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <Label>Form title</Label>
+                        <Label className="mb-1">Form title</Label>
                         <Input
                           value={formTitle}
                           onChange={(e) => setFormTitle(e.target.value)}
@@ -236,7 +242,7 @@ export default function AuricFeedbackFormBuilder() {
 
                   
                       <div className="sm:col-span-2">
-                        <Label>Logo</Label>
+                        <Label className="mb-1">Logo</Label>
                         <div className="flex items-center gap-3">
                           <input
                             type="file"
@@ -294,15 +300,15 @@ export default function AuricFeedbackFormBuilder() {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="text-sm font-medium text-gray-700">
-                          Custom rating questions (max 6)
+                          Custom questions(max 6)
                         </div>
                         <Button
                           size="sm"
-                          className="rounded-full"
+                          className="rounded-2xl"
                           onClick={addQuestion}
                           disabled={!canAdd}
                         >
-                          <Plus className="h-4 w-4 mr-1" /> Add question
+                          <Plus className="h-2 w-2" /> Add question
                         </Button>
                       </div>
 
@@ -351,13 +357,6 @@ export default function AuricFeedbackFormBuilder() {
             </motion.div>
           </TabsContent>
         </Tabs>
-      </div>
-
-
-      <div className="pointer-events-none select-none fixed bottom-3 right-4 z-40 text-[11px] tracking-widest uppercase">
-        <span className="px-2 py-1 rounded-full bg-white/70 border shadow-sm backdrop-blur-md">
-          powered by <b>auric</b>
-        </span>
       </div>
     </div>
   );

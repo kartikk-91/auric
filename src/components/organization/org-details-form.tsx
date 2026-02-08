@@ -128,9 +128,9 @@ const OrgDetailsForm = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="w-full flex justify-center px-4 sm:px-6 md:px-8"
+            className="w-full flex justify-center sm:px-6 md:px-8"
         >
-            <Card className="w-full max-w-4xl h-fit p-4 sm:p-6 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-md shadow-xl rounded-2xl border border-white/20">
+            <Card className="w-full max-w-4xl h-fit p-4 sm:p-6 bg-white/70 dark:bg-neutral-900/60 backdrop-blur-md shadow-xl sm:rounded-2xl border border-white/20">
                 <CardHeader>
                     <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
                         <Image src="/auric.png" alt="auric" width={60} height={60} />
